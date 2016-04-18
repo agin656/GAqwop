@@ -3,15 +3,23 @@ import random
 def initiate(popSize):
     population = []
     for i in range(popSize):
-        population.append(['{0:08b}'.format(random.randint(0,255)), '{0:08b}'.format(random.randint(0,255)),
-                           '{0:08b}'.format(random.randint(0,255)), '{0:08b}'.format(random.randint(0,255)),
-                           '{0:08b}'.format(random.randint(0,255)), '{0:08b}'.format(random.randint(0,255)),
-                           '{0:08b}'.format(random.randint(0,255)), '{0:08b}'.format(random.randint(0,255))])
-    print(population)
+        population.append( ##represent second of pressing a button, and second of releasing it, in the order of QWOP
+                           '{0:08b}'.format(random.randint(0,255)) + '{0:08b}'.format(random.randint(0,255)) +
+                           '{0:08b}'.format(random.randint(0,255)) + '{0:08b}'.format(random.randint(0,255)) +
+                           '{0:08b}'.format(random.randint(0,255)) + '{0:08b}'.format(random.randint(0,255)) +
+                           '{0:08b}'.format(random.randint(0,255)) + '{0:08b}'.format(random.randint(0,255)))
+##                           ##represent starting either pressing or releasing a button, in the order of QWOP, 1 is press
+##                           [random.randint(0,1),random.randint(0,1),random.randint(0,1),random.randint(0,1)]
+##                           ])
     return population
 
+##number represent how far it can run
 def fitness(pop, data):
-    return random.randint(0, 100)
+    result = []
+    for i in pop:
+##placeholder of fitness function
+        result.append(random.randint(0,100))
+    return result
         
 
 def crossover(population, crossoverRate):
@@ -29,105 +37,96 @@ def crossover(population, crossoverRate):
         newPopulation.append(b)
     return newPopulation
 
-
+##mutation now mutates all digits
 def mutation(population, mutationRate):
     for i in range(len(population)):
-        if random.random() < mutationRate:
-            index = random.randint(0,91)
-            if population[i][index] == '0':
-                population[i] = population[i][:index] + '1' + population[i][index+1:]
-            else:
-                population[i] = population[i][:index] + '0' + population[i][index+1:]
+        for index in range(len(population[i])):
+            if random.random() < mutationRate:
+                if population[i][index] == '0':
+                    population[i] = population[i][:index] + '1' + population[i][index+1:]
+                else:
+                    population[i] = population[i][:index] + '0' + population[i][index+1:]
     return population
 
 def main():
     populationSize = int(input("Population Size is => "))
     crossoverRate = float(input("Crossover Rate is => "))
     mutationRate = float(input("Mutation Rate is => "))
+##use aScore to determine the top chromosomes
+    aScore = 30
+##determine when consider finding the solution
+    endPoint = 99
 
-
+    
+##initialize population
     population = initiate(populationSize)
-    data = readData()
-
+    data = []
+##save the top chromosomes in the first generation
     saved0 = []
     result = fitness(population, data)
     for i in range(len(result)):
-        if result[i] > 30:
+        if result[i] > aScore:
             saved0.append(population[i])
-    result.sort()
-    result.reverse()
-    print(result[0])
-    print(result.index(0))
-
-    population = mutation(population, mutationRate)
-    population = crossover(population, crossoverRate)
-    saved1 = []
-    result = fitness(population, data)
     result_copy = result[:]
     result_copy.sort()
     result_copy.reverse()
-    if result_copy[int(len(result_copy)/20)] > 30:
-        for i in range(len(result)):
-            if result[i] > result_copy[int(len(result_copy)/20)]:
-                saved1.append(population[i])
-    else:
-        for i in range(len(result)):            
-            if result[i] > 30:
-                saved1.append(population[i])
-    result_copy.sort()
-    for i in range(len(population)):
-        if saved0 == []:
-            break
-        if result[i] <= result_copy[len(saved0)]:
-            population[i] = saved0.pop()
-    saved0 = saved1[:]
-    result_copy.reverse()
-    print(result_copy[0])
-    print(result_copy.index(0))
 
+##if find a solution (this happens rarely from generation1)
+    if result_copy[0] > endPoint:
+        print("Hey, I found it")
+        best_index = result.index(result_copy[0])
+        print("the gene is:")
+        print(population[best_index])
+        print("It can run " + str(result_copy[0]) + "meters.")
+        pop = []
+        pop.append(population[best_index])
+        fitness(pop,data)
+        return pop
     
-    end = input("Continue?(no) => ")
-    while end != "no":
-        
+    end = "no"
+    while end == "no":
+        print("a generation is passed")
+##mutation and crossover
         population = mutation(population, mutationRate)    
         population = crossover(population, crossoverRate)
+##save the top chromosomes in the first generation
         saved1 = []
         result = fitness(population, data)
         result_copy = result[:]
         result_copy.sort()
         result_copy.reverse()
-        if result_copy[int(len(result_copy)/20)] > 30:
+##save the top 10% if the top 10% is better than aScore
+        if result_copy[int(len(result_copy)/10)] > aScore:
             for i in range(len(result)):
-                if result[i] > result_copy[int(len(result_copy)/20)]:
+                if result[i] > result_copy[int(len(result_copy)/10)]:
                     saved1.append(population[i])
+##save the ones that is better than aScore if the top 10% is not all better than aScore
         else:
             for i in range(len(result)):            
-                if result[i] > 30:
+                if result[i] > aScore:
                     saved1.append(population[i])
         result_copy.sort()
+##replace the bad chromosomes in the current generation with the good ones from the parent generation
         for i in range(len(population)):
             if saved0 == []:
                 break
             if result[i] <= result_copy[len(saved0)]:
                 population[i] = saved0.pop()
+##save the good chromosome in the current generation as the good ones from parent 
         saved0 = saved1[:]
         result_copy.reverse()
-        print(result_copy[0])
-        print(result_copy.index(0))
-        if result[0] > 130:
-            input("Hey, I found it")
+
+##if finds a solution
+        if result_copy[0] > endPoint:
+            print("Hey, I found it")
             best_index = result.index(result_copy[0])
-            print("the code is:")
+            print("the gene is:")
             print(population[best_index])
-            print("with " + str(result_copy.index(0)) + " correct out of 150")
-            end = "no"
-
-## for debugging of 96
-        if result_copy[0] == 96:
-            end = "no"
-
-## prints the best classifier
-    print(population[result.index(result_copy[0])])
-##        end = input("Continue?(no) => ")
+            print("It can run " + str(result_copy[0]) + " meters.")
+            pop = []
+            pop.append(population[best_index])
+            fitness(pop,data)
+            end = "yes"
+    return pop
     
 main()
