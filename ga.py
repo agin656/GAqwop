@@ -110,7 +110,7 @@ def main():
         for i in range(len(population)):
             if saved0 == []:
                 break
-            if result[i] <= result_copy[len(saved0)]:
+            if result[i] <= result_copy[len(saved0)-1]:
                 population[i] = saved0.pop()
 ##save the good chromosome in the current generation as the good ones from parent 
         saved0 = saved1[:]
