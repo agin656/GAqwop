@@ -15,8 +15,8 @@ import java.awt.Toolkit;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.lang.*;
 
 /**
  * This class will try to play QWOP and evolve some way to play well...
@@ -296,6 +296,102 @@ public class Qwopper {
       }
     }
     return str;
+  }
+
+  public static ArrayList initiate(int populationSize) {
+    Random random = new Random(System.currentTimeMillis());
+    ArrayList population = new ArrayList();
+
+    for (int i=0; i<populationSize; ++i) {
+      String str = "";
+      for (int j=0;j<8;++j) {
+        int aNum = random.nextInt(255);
+        String theNum = Integer.toBinaryString(aNum);
+        str.concat(theNum);
+      }
+      population.add(str);
+    }
+    return population;
+  }
+
+  public static ArrayList findScore(ArrayList population, ArrayList data) {
+    ArrayList result = new ArrayList();
+
+    for (int i=0;i<population.size();++i) {
+      String str = data.get(i);
+      String[] lst = str.split("\\|");
+      result.add(lst[3]);
+    }
+    return result;
+  }
+
+  private static ArrayList crossover(ArrayList population, double crossoverRate) {
+    Random random = new Random(System.currentTimeMillis());
+    ArrayList newPopulation = new ArrayList();
+
+    for (int i=0; i<population.size()/2; ++i) {
+      int x = random.nextInt(population.size());
+      int y = random.nextInt(population.size());
+      String a = population.get(x);
+      String b = population.get(y);
+      if (random.nextFloat() < crossoverRate) {
+        int start = random.nextInt(64);
+        int end = start + random.nextInt(64-start);
+        String sub = a.substring(start,end);
+        a = a.substring(start)+b.substring(start,end)+a.substring(end,64);
+        b = b.substring(start)+sub+b.substring(end,64);
+      }
+      newPopulation.add(a);
+      newPopulation.add(b);
+      population.remove(x);
+      population.remove(y);
+    }
+    return newPopulation;
+  }
+
+  private static ArrayList mutation(ArrayList population, double mutationRate) {
+    Random random = new Random(System.currentTimeMillis());
+
+    for (int i=0;i<population.size();++i) {
+      for (int index=0;index<population[i].length();++index) {
+        if (random.nextFloat() < mutationRate) {
+          String str;
+          if (population.get(i).charAt(index) == '0') {
+            str = population.get(i).substring(index)+'1'+population.get(i).substring(index+1,population.get(i).length());
+          } else {
+            str = population.get(i).substring(index)+'0'+population.get(i).substring(index+1,population.get(i).length());
+          }
+          population.remove(i);
+          population.add(i,str);
+        }
+      }
+    }
+    return population;
+  }
+
+  public static String convertChromosomeToQWOP (String Chromosome) {
+    String QWOP = "";
+    float Qpress = Integer.parseInt(Chromosome.substring(0, 8), 2)/100;
+    float Qwait = Integer.parseInt(Chromosome.substring(8, 16), 2)/100;
+    float Wpress = Integer.parseInt(Chromosome.substring(16,24),2)/100;
+    float Wwait = Integer.parseInt(Chromosome.substring(24,32), 2)/100;
+    float Opress = Integer.parseInt(Chromosome.substring(32,40),2)/100;
+    float Owait = Integer.parseInt(Chromosome.substring(40,48), 2)/100;
+    float Ppress = Integer.parseInt(Chromosome.substring(48,56),2)/100;
+    float Pwait = Integer.parseInt(Chromosome.substring(56,64), 2)/100;
+
+    return QWOP;
+  }
+
+  public static ArrayList doGA (ArrayList population, ArrayList result) {
+    int populationSize = population.size();
+    double crossoverRate = 0.8;
+    double mutationRate = 0.05;
+    Random random = new Random(System.currentTimeMillis());
+    ArrayList newPopulation = crossover(population,crossoverRate);
+    newPopulation = mutation(newPopulation,mutationRate);
+
+    return newPopulation;
   }
 
   private Robot rob;

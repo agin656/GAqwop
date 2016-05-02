@@ -4,6 +4,7 @@ import java.awt.Robot;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.*;
 
 import com.slowfrog.qwop.ConsoleLog;
 import com.slowfrog.qwop.Log;
@@ -14,9 +15,14 @@ public class Main {
 
   private static final Log LOG = new ConsoleLog();
 
+  private static ArrayList data = new ArrayList();
+
   public static void main(String[] args) {
 
+    //using tries to represent population size
     int tries = 10;
+    //count is how many times it runs
+    //using count to represent max run time
     int count = 1;
     String str = null;
     if (args.length > 0) {
@@ -43,6 +49,26 @@ public class Main {
         testString(qwop, str, tries, round);
       }
 
+      ArrayList population;
+      ArrayList result;
+      //runs count times
+      for (int generation = 0; generation < count; ++generation) {
+        //initialize population
+        population = Qwopper.initiate(tries);
+        //iterate through each chromosome within population
+        for (int index = 0; index < tries; ++index) {
+          //find each chromosome and convert it to a playable string
+          str = Qwopper.convertChromosomeToQWOP(population.get(index));
+          //play the string
+          testString(qwop, str, 1, 1);
+        }
+        //find the score of each chromosome in the population
+        result = Qwopper.findScore(population,data);
+        population = Qwopper.doGA(population,result);
+        result.clear();
+
+      }
+
     } catch (Throwable t) {
       LOG.log("Error", t);
     }
@@ -56,6 +82,8 @@ public class Main {
       LOG.log(info.toString());
       LOG.log(info.marshal());
       saveRunInfo("runs.txt", info);
+      //add the run info to data
+      data.add(info);
     }
   }
 
