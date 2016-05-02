@@ -13,7 +13,7 @@ public class GA {
 			String str = "";
 			for (int j=0;j<8;j++) {
 				int aNum = random.nextInt(255);
-				String theNum = aNum.toBinaryString(aNum);
+				String theNum = Integer.toBinaryString(aNum);
 				str.concat(theNum);
 			}
 			population.add(str);
@@ -24,7 +24,7 @@ public class GA {
 	public static ArrayList fitness(ArrayList population, ArrayList data) {
 		ArrayList result = new ArrayList();
 		
-		for (i=0;i<population.size();i++) {
+		for (int i=0;i<population.size();i++) {
 			String str = data.get(i);
 			String[] lst = str.split("\\|");
 			result.add(lst[3]);
@@ -36,9 +36,11 @@ public class GA {
 		ArrayList newPopulation = new ArrayList();
 		
 		for (int i=0; i<population.size()/2; i++) {
-			String a = population.remove(int random.nextInt(population.size()));
-			String b = population.remove(int random.nextInt(population.size()));
-			if (float random.nextFloat() < crossoverRate) {
+			int x = random.nextInt(population.size());
+			int y = random.nextInt(population.size());
+			String a = population.get(x);
+			String b = population.get(y);
+			if (random.nextFloat() < crossoverRate) {
 				int start = random.nextInt(64);
 				int end = start + random.nextInt(64-start);
 				String sub = a.substring(start,end);
@@ -47,6 +49,8 @@ public class GA {
 			}
 			newPopulation.add(a);
 			newPopulation.add(b);
+			population.remove(x);
+			population.remove(y);
 		}
 		return newPopulation;
 	}
@@ -54,7 +58,7 @@ public class GA {
 	public static ArrayList mutation(ArrayList population, int mutationRate) {
 		for (int i=0;i<population.size();i++) {
 			for (int index=0;index<population[i].length();index++) {
-				if (float random.nextFloat() < mutationRate) {
+				if (random.nextFloat() < mutationRate) {
 					String str;
 					if (population.get(i).charAt(index) == '0') {
 						str = population.get(i).substring(index)+'1'+population.get(i).substring(index+1,population.get(i).length());
