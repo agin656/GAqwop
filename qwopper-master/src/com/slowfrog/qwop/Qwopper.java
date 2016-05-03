@@ -29,8 +29,8 @@ public class Qwopper {
   /** Tolerance for color comparison. */
   private static final int RGB_TOLERANCE = 3;
 
-  /** Unit delay in milliseconds when playing a 'string' */
-  private static final int DELAY = 150;
+  /** Unit delay in milliseconds when playing a 'string' 150*/ 
+  private static final int DELAY = 50;
 
   /** Interval between two speed checks. */
   private static final int CHECK_INTERVAL = 1000;
@@ -298,68 +298,83 @@ public class Qwopper {
     return str;
   }
 
-  public static ArrayList initiate(int populationSize) {
+  //this is functioning correctly
+  public static ArrayList<String> initiate(int populationSize) {
     Random random = new Random(System.currentTimeMillis());
     ArrayList population = new ArrayList();
 
     for (int i=0; i<populationSize; ++i) {
       String str = "";
-      for (int j=0;j<8;++j) {
-        int aNum = random.nextInt(255);
-        String theNum = Integer.toBinaryString(aNum);
-        str.concat(theNum);
+      for (int j=0;j<4;++j) {
+        int aNum = random.nextInt(127);
+		String theNum = String.format("%7s", Integer.toBinaryString(aNum)).replace(' ', '0');
+        str += theNum;
+		aNum = random.nextInt(255);
+		theNum = String.format("%8s", Integer.toBinaryString(aNum)).replace(' ', '0');
+        str += theNum;
+		aNum = random.nextInt(127);
+		theNum = String.format("%7s", Integer.toBinaryString(aNum)).replace(' ', '0');
+        str += theNum;
       }
       population.add(str);
     }
     return population;
   }
 
-  public static ArrayList findScore(ArrayList population, ArrayList data) {
-    ArrayList result = new ArrayList();
+  public static ArrayList<Double> findScore(ArrayList<String> population, ArrayList<String> data) {
+    ArrayList<Double> result = new ArrayList();
 
     for (int i=0;i<population.size();++i) {
       String str = data.get(i);
       String[] lst = str.split("\\|");
-      result.add(lst[3]);
+      result.add(Double.parseDouble(lst[3]));
     }
     return result;
   }
 
-  private static ArrayList crossover(ArrayList population, double crossoverRate) {
+  private static ArrayList<String> crossover(ArrayList<String> population, double crossoverRate) {
     Random random = new Random(System.currentTimeMillis());
-    ArrayList newPopulation = new ArrayList();
+    ArrayList<String> newPopulation = new ArrayList();
 
     for (int i=0; i<population.size()/2; ++i) {
-      int x = random.nextInt(population.size());
-      int y = random.nextInt(population.size());
-      String a = population.get(x);
-      String b = population.get(y);
-      if (random.nextFloat() < crossoverRate) {
-        int start = random.nextInt(64);
-        int end = start + random.nextInt(64-start);
-        String sub = a.substring(start,end);
-        a = a.substring(start)+b.substring(start,end)+a.substring(end,64);
-        b = b.substring(start)+sub+b.substring(end,64);
-      }
-      newPopulation.add(a);
-      newPopulation.add(b);
-      population.remove(x);
-      population.remove(y);
+	  int x = random.nextInt(population.size());
+	  int y = random.nextInt(population.size());
+	  while (y==x) {
+		y = random.nextInt(population.size());
+	  }
+	  String a = population.get(x);
+	  String b = population.get(y);
+	  if (random.nextFloat() < crossoverRate) {
+		int start = random.nextInt(64);
+		int end = start + random.nextInt(64-start);
+		String sub = a.substring(start,end);
+		a = a.substring(0,start)+b.substring(start,end)+a.substring(end,64);
+		b = b.substring(0,start)+sub+b.substring(end,64);
+	  }
+	  newPopulation.add(a);
+	  newPopulation.add(b);
+	  if (x>y) {
+		population.remove(x);
+		population.remove(y);
+	  } else {
+		population.remove(y);
+		population.remove(x);
+	  }
     }
     return newPopulation;
   }
 
-  private static ArrayList mutation(ArrayList population, double mutationRate) {
+  private static ArrayList<String> mutation(ArrayList<String> population, double mutationRate) {
     Random random = new Random(System.currentTimeMillis());
 
     for (int i=0;i<population.size();++i) {
-      for (int index=0;index<population[i].length();++index) {
+      for (int index=0;index<population.get(i).length();++index) {
         if (random.nextFloat() < mutationRate) {
           String str;
           if (population.get(i).charAt(index) == '0') {
-            str = population.get(i).substring(index)+'1'+population.get(i).substring(index+1,population.get(i).length());
+            str = population.get(i).substring(0,index)+'1'+population.get(i).substring(index+1);
           } else {
-            str = population.get(i).substring(index)+'0'+population.get(i).substring(index+1,population.get(i).length());
+            str = population.get(i).substring(0,index)+'0'+population.get(i).substring(index+1);
           }
           population.remove(i);
           population.add(i,str);
@@ -369,26 +384,115 @@ public class Qwopper {
     return population;
   }
 
+  //this code is TERRIBLE!!! I know so DO NOT tell me how bad it is.
   public static String convertChromosomeToQWOP (String Chromosome) {
     String QWOP = "";
-    float Qpress = Integer.parseInt(Chromosome.substring(0, 8), 2)/100;
-    float Qwait = Integer.parseInt(Chromosome.substring(8, 16), 2)/100;
-    float Wpress = Integer.parseInt(Chromosome.substring(16,24),2)/100;
-    float Wwait = Integer.parseInt(Chromosome.substring(24,32), 2)/100;
-    float Opress = Integer.parseInt(Chromosome.substring(32,40),2)/100;
-    float Owait = Integer.parseInt(Chromosome.substring(40,48), 2)/100;
-    float Ppress = Integer.parseInt(Chromosome.substring(48,56),2)/100;
-    float Pwait = Integer.parseInt(Chromosome.substring(56,64), 2)/100;
+	System.out.println(Chromosome);
+	int Qwait1 = Integer.parseInt(Chromosome.substring(0, 7), 2)*10;
+    int Qpress = Integer.parseInt(Chromosome.substring(7, 15),2)*10;
+    int Qwait2 = Integer.parseInt(Chromosome.substring(15,22),2)*10;
+	int Wwait1 = Integer.parseInt(Chromosome.substring(22,29),2)*10;
+    int Wpress = Integer.parseInt(Chromosome.substring(29,37),2)*10;
+    int Wwait2 = Integer.parseInt(Chromosome.substring(37,44),2)*10;
+	int Owait1 = Integer.parseInt(Chromosome.substring(44,51),2)*10;
+    int Opress = Integer.parseInt(Chromosome.substring(51,59),2)*10;
+    int Owait2 = Integer.parseInt(Chromosome.substring(59,66),2)*10;
+	int Pwait1 = Integer.parseInt(Chromosome.substring(66,73),2)*10;
+    int Ppress = Integer.parseInt(Chromosome.substring(73,81),2)*10;
+	int Pwait2 = Integer.parseInt(Chromosome.substring(81,88),2)*10;
+	int Q = Qwait1+Qwait2+Qpress;
+	int W = Wwait1+Wwait2+Wpress;
+	int O = Owait1+Owait2+Opress;
+	int P = Pwait1+Pwait2+Ppress;
+	System.out.println(Qwait1);
+	System.out.println(Wwait1);
+	System.out.println(Owait1);
+	System.out.println(Pwait1);
+	int max;
+	if (Q>=W && Q>=O && Q>=P) {
+		max = Q;
+	} else if (W>=Q && W>=O && W>=P) {
+		max = W;
+	} else if (O>=Q && O>=W && O>=P) {
+		max = O;
+	} else {
+		max = P;
+	}
+	int num = max/DELAY+1;
+	for (int i=0;i<num;++i) {
+		QWOP += "+";
+	}
+	int i = 1;
+	//Q
+	QWOP = QWOP.substring(0,Qwait1/DELAY)+"Q"+QWOP.substring(Qwait1/DELAY+1,Qwait1/DELAY+Qpress/DELAY)+"q"+QWOP.substring(Qwait1/DELAY+Qpress/DELAY+1);
+	//W
+	if (QWOP.charAt(Wwait1/DELAY) == '+') {
+		QWOP = QWOP.substring(0,Wwait1/DELAY)+"W"+QWOP.substring(Wwait1/DELAY+1);
+	} else {
+		while (QWOP.charAt(Wwait1/DELAY+i) != '+') {
+			i++;
+		}
+		QWOP = QWOP.substring(0,Wwait1/DELAY+i)+"W"+QWOP.substring(Wwait1/DELAY+i+1);
+		i = 1;
+	}
+	if (QWOP.charAt(Wwait1/DELAY+Wpress/DELAY) == '+') {
+		QWOP = QWOP.substring(0,Wwait1/DELAY+Wpress/DELAY)+"w"+QWOP.substring(Wwait1/DELAY+Wpress/DELAY+1);
+	} else {
+		while (QWOP.charAt(Wwait1/DELAY+Wpress/DELAY+i) != '+') {
+			i++;
+		}
+		QWOP = QWOP.substring(0,Wwait1/DELAY+Wpress/DELAY+i)+"w"+QWOP.substring(Wwait1/DELAY+Wpress/DELAY+i+1);
+		i = 1;
+	}
+	//O
+	if (QWOP.charAt(Owait1/DELAY) == '+') {
+		QWOP = QWOP.substring(0,Owait1/DELAY)+"O"+QWOP.substring(Owait1/DELAY+1);
+	} else {
+		while (QWOP.charAt(Owait1/DELAY+i) != '+') {
+			i++;
+		}
+		QWOP = QWOP.substring(0,Owait1/DELAY+i)+"O"+QWOP.substring(Owait1/DELAY+i+1);
+		i = 1;
+	}
+	if (QWOP.charAt(Owait1/DELAY+Opress/DELAY) == '+') {
+		QWOP = QWOP.substring(0,Owait1/DELAY+Opress/DELAY)+"o"+QWOP.substring(Owait1/DELAY+Opress/DELAY+1);
+	} else {
+		while (QWOP.charAt(Owait1/DELAY+Opress/DELAY+i) != '+') {
+			i++;
+		}
+		QWOP = QWOP.substring(0,Owait1/DELAY+Opress/DELAY+i)+"o"+QWOP.substring(Owait1/DELAY+Opress/DELAY+i+1);
+		i = 1;
+	}
+	//P
+	if (QWOP.charAt(Pwait1/DELAY) == '+') {
+		QWOP = QWOP.substring(0,Pwait1/DELAY)+"P"+QWOP.substring(Pwait1/DELAY+1);
+	} else {
+		while (QWOP.charAt(Pwait1/DELAY+i) != '+') {
+			i++;
+		}
+		QWOP = QWOP.substring(0,Pwait1/DELAY+i)+"P"+QWOP.substring(Pwait1/DELAY+i+1);
+		i = 1;
+	}
+	if (QWOP.charAt(Pwait1/DELAY+Ppress/DELAY) == '+') {
+		QWOP = QWOP.substring(0,Pwait1/DELAY+Ppress/DELAY)+"p"+QWOP.substring(Pwait1/DELAY+Ppress/DELAY+1);
+	} else {
+		while (QWOP.charAt(Pwait1/DELAY+Ppress/DELAY+i) != '+') {
+			i++;
+		}
+		QWOP = QWOP.substring(0,Pwait1/DELAY+Ppress/DELAY+i)+"p"+QWOP.substring(Pwait1/DELAY+Ppress/DELAY+i+1);
+		i = 1;
+	}
+	
 
     return QWOP;
   }
 
-  public static ArrayList doGA (ArrayList population, ArrayList result) {
+  public static ArrayList<String> doGA (ArrayList<String> population,ArrayList<String> previous, ArrayList<Double> result) {
     int populationSize = population.size();
     double crossoverRate = 0.8;
     double mutationRate = 0.05;
     Random random = new Random(System.currentTimeMillis());
-    ArrayList newPopulation = crossover(population,crossoverRate);
+    ArrayList<String> newPopulation = crossover(population,crossoverRate);
     newPopulation = mutation(newPopulation,mutationRate);
 
     return newPopulation;

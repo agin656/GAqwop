@@ -15,15 +15,15 @@ public class Main {
 
   private static final Log LOG = new ConsoleLog();
 
-  private static ArrayList data = new ArrayList();
+  private static ArrayList<String> data = new ArrayList<String>();
 
   public static void main(String[] args) {
 
     //using tries to represent population size
-    int tries = 10;
+    int tries = 2;
     //count is how many times it runs
     //using count to represent max run time
-    int count = 1;
+    int count = 10;
     String str = null;
     if (args.length > 0) {
       try {
@@ -42,15 +42,17 @@ public class Main {
       Robot rob = new Robot();
       Qwopper qwop = new Qwopper(rob, LOG);
       qwop.findRealOrigin();
-      for (int round = 0; round < count; ++round) {
+/*      for (int round = 0; round < count; ++round) {
         if (count > 1) {
           str = Qwopper.makeRealisticRandomString(30);
         }
         testString(qwop, str, tries, round);
-      }
+      }*/
 
-      ArrayList population;
-      ArrayList result;
+      ArrayList<String> population;
+	  ArrayList<String> populationSave = new ArrayList<String>();
+	  ArrayList<String> previous = new ArrayList<String>();
+      ArrayList<Double> result;
       //runs count times
       for (int generation = 0; generation < count; ++generation) {
         //initialize population
@@ -60,12 +62,25 @@ public class Main {
           //find each chromosome and convert it to a playable string
           str = Qwopper.convertChromosomeToQWOP(population.get(index));
           //play the string
-          testString(qwop, str, 1, 1);
+          testString(qwop, str, 1, index);
         }
         //find the score of each chromosome in the population
+		System.out.println(data);
         result = Qwopper.findScore(population,data);
-        population = Qwopper.doGA(population,result);
-        result.clear();
+		populationSave.clear();
+		//trying to make a deep copy
+		for(String chromosome : population) {
+			populationSave.add(chromosome);
+		}
+		//populationSave = population;
+        population = Qwopper.doGA(population,previous,result);
+		previous.clear();
+		//trying to make a deep copy
+		for(String chromosome : populationSave) {
+			previous.add(chromosome);
+		}
+		//previous = populationSave;
+        data.clear();
 
       }
 
@@ -83,7 +98,7 @@ public class Main {
       LOG.log(info.marshal());
       saveRunInfo("runs.txt", info);
       //add the run info to data
-      data.add(info);
+      data.add(info.marshal());
     }
   }
 
