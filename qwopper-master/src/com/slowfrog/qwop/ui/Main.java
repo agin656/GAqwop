@@ -51,8 +51,9 @@ public class Main {
 
       ArrayList<String> population;
 	  ArrayList<String> populationSave = new ArrayList<String>();
-	  ArrayList<String> previous = new ArrayList<String>();
+	  ArrayList<String> previousP = new ArrayList<String>();
       ArrayList<Double> result;
+	  ArrayList<Double> previousR = new ArrayList<Double>();
       //runs count times
       for (int generation = 0; generation < count; ++generation) {
         //initialize population
@@ -65,7 +66,6 @@ public class Main {
           testString(qwop, str, 1, index);
         }
         //find the score of each chromosome in the population
-		System.out.println(data);
         result = Qwopper.findScore(population,data);
 		populationSave.clear();
 		//trying to make a deep copy
@@ -73,13 +73,19 @@ public class Main {
 			populationSave.add(chromosome);
 		}
 		//populationSave = population;
-        population = Qwopper.doGA(population,previous,result);
-		previous.clear();
+        population = Qwopper.doGA(population,previousP,result,previousR);
+		previousP.clear();
 		//trying to make a deep copy
 		for(String chromosome : populationSave) {
-			previous.add(chromosome);
+			previousP.add(chromosome);
 		}
-		//previous = populationSave;
+		//previousP = populationSave;
+		previousR.clear();
+		//trying to make a deep copy
+		for(Double score : result) {
+			previousR.add(score);
+		}
+		//previousR = result
         data.clear();
 
       }

@@ -320,7 +320,8 @@ public class Qwopper {
     }
     return population;
   }
-
+  
+  //this is functioning correctly
   public static ArrayList<Double> findScore(ArrayList<String> population, ArrayList<String> data) {
     ArrayList<Double> result = new ArrayList();
 
@@ -331,7 +332,8 @@ public class Qwopper {
     }
     return result;
   }
-
+  
+  //this is functioning correctly
   private static ArrayList<String> crossover(ArrayList<String> population, double crossoverRate) {
     Random random = new Random(System.currentTimeMillis());
     ArrayList<String> newPopulation = new ArrayList();
@@ -363,7 +365,8 @@ public class Qwopper {
     }
     return newPopulation;
   }
-
+  
+  //this is functioning correctly
   private static ArrayList<String> mutation(ArrayList<String> population, double mutationRate) {
     Random random = new Random(System.currentTimeMillis());
 
@@ -383,7 +386,8 @@ public class Qwopper {
     }
     return population;
   }
-
+  
+  //this is functioning correctly
   //this code is TERRIBLE!!! I know so DO NOT tell me how bad it is.
   public static String convertChromosomeToQWOP (String Chromosome) {
     String QWOP = "";
@@ -404,10 +408,6 @@ public class Qwopper {
 	int W = Wwait1+Wwait2+Wpress;
 	int O = Owait1+Owait2+Opress;
 	int P = Pwait1+Pwait2+Ppress;
-	System.out.println(Qwait1);
-	System.out.println(Wwait1);
-	System.out.println(Owait1);
-	System.out.println(Pwait1);
 	int max;
 	if (Q>=W && Q>=O && Q>=P) {
 		max = Q;
@@ -487,13 +487,44 @@ public class Qwopper {
     return QWOP;
   }
 
-  public static ArrayList<String> doGA (ArrayList<String> population,ArrayList<String> previous, ArrayList<Double> result) {
+  public static ArrayList<String> doGA (ArrayList<String> population,ArrayList<String> previousP, ArrayList<Double> result, ArrayList<Double> previousR) {
     int populationSize = population.size();
     double crossoverRate = 0.8;
     double mutationRate = 0.05;
     Random random = new Random(System.currentTimeMillis());
-    ArrayList<String> newPopulation = crossover(population,crossoverRate);
-    newPopulation = mutation(newPopulation,mutationRate);
+	ArrayList<String> newPopulation = new ArrayList<String>();
+	ArrayList<Double> copy_result = new ArrayList<Double>();
+	ArrayList<Double> copy_previousR = new ArrayList<Double>();
+	
+	if (previousP.size() == populationSize && previousR.size() == populationSize) {
+	  for(String chromosome : population) {
+		newPopulation.add(chromosome);
+	  }
+	  for(double score : result) {
+		copy_result.add(score);
+	  }
+	  for(double score : previousR) {
+		copy_previousR.add(score);
+	  }
+	  Collections.sort(copy_result);
+	  Collections.sort(copy_previousR);
+	  Collections.reverse(copy_previousR);
+		
+	  for (int i=0;i<populationSize/5;++i) {
+		if (copy_previousR.get(i)>copy_result.get(i)) {
+		  int index = result.indexOf(copy_result.get(i));
+			newPopulation.remove(index);
+			newPopulation.add(index,previousP.get(i));
+		  }
+		}
+	  newPopulation = crossover(newPopulation,crossoverRate);
+	  newPopulation = mutation(newPopulation,mutationRate);
+		
+	} else {
+	  newPopulation = crossover(population,crossoverRate);
+	  newPopulation = mutation(newPopulation,mutationRate);
+	}
+    
 
     return newPopulation;
   }
