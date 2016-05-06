@@ -432,7 +432,8 @@ public class Qwopper {
 	}
 	int i = 1;
 	//Q
-	QWOP = QWOP.substring(0,Qwait1/DELAY)+"Q"+QWOP.substring(Qwait1/DELAY+1,Qwait1/DELAY+Qpress/DELAY)+"q"+QWOP.substring(Qwait1/DELAY+Qpress/DELAY+1);
+	QWOP = QWOP.substring(0,Qwait1/DELAY)+"Q"+QWOP.substring(Qwait1/DELAY+1);
+	QWOP = QWOP.substring(0,Qwait1/DELAY+Qpress/DELAY)+"q"+QWOP.substring(Qwait1/DELAY+Qpress/DELAY+1);
 	//W
 	if (QWOP.charAt(Wwait1/DELAY) == '+') {
 		QWOP = QWOP.substring(0,Wwait1/DELAY)+"W"+QWOP.substring(Wwait1/DELAY+1);
