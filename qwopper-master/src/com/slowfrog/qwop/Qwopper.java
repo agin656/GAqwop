@@ -334,18 +334,33 @@ public class Qwopper {
   }
   
   //this is functioning correctly
-  private static ArrayList<String> crossover(ArrayList<String> population, double crossoverRate) {
+  private static ArrayList<String> crossover(ArrayList<String> population, double crossoverRate, ArrayList<Double> result) {
     Random random = new Random(System.currentTimeMillis());
     ArrayList<String> newPopulation = new ArrayList();
 
     for (int i=0; i<population.size()/2; ++i) {
-	  int x = random.nextInt(population.size());
-	  int y = random.nextInt(population.size());
-	  while (y==x) {
-		y = random.nextInt(population.size());
+	  int x1 = random.nextInt(population.size());
+	  int x2 = random.nextInt(population.size());
+	  int y1 = random.nextInt(population.size());
+	  int y2 = random.nextInt(population.size());
+	  while (x1==x2) {
+		x2 = random.nextInt(population.size());
 	  }
-	  String a = population.get(x);
-	  String b = population.get(y);
+	  while (y1==y2) {
+		y2 = random.nextInt(population.size());
+	  }
+	  String a; 
+	  String b; 
+	  if (result.get(x1) > result.get(x2)) {
+		a = population.get(x1);
+	  } else {
+		a = population.get(x2);
+	  }
+	  if (result.get(y1) > result.get(y2)) {
+		b = population.get(y1);
+	  } else {
+		b = population.get(y2);
+	  }
 	  if (random.nextFloat() < crossoverRate) {
 		int start = random.nextInt(64);
 		int end = start + random.nextInt(64-start);
@@ -355,13 +370,6 @@ public class Qwopper {
 	  }
 	  newPopulation.add(a);
 	  newPopulation.add(b);
-	  if (x>y) {
-		population.remove(x);
-		population.remove(y);
-	  } else {
-		population.remove(y);
-		population.remove(x);
-	  }
     }
     return newPopulation;
   }
@@ -419,7 +427,7 @@ public class Qwopper {
 		max = P;
 	}
 	int num = max/DELAY+1;
-	for (int i=0;i<num;++i) {
+	for (int i=0;i<=num;++i) {
 		QWOP += "+";
 	}
 	int i = 1;
@@ -517,11 +525,11 @@ public class Qwopper {
 			newPopulation.add(index,previousP.get(i));
 		  }
 		}
-	  newPopulation = crossover(newPopulation,crossoverRate);
+	  newPopulation = crossover(newPopulation,crossoverRate,result);
 	  newPopulation = mutation(newPopulation,mutationRate);
 		
 	} else {
-	  newPopulation = crossover(population,crossoverRate);
+	  newPopulation = crossover(population,crossoverRate,result);
 	  newPopulation = mutation(newPopulation,mutationRate);
 	}
     
