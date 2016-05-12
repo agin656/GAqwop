@@ -54,6 +54,13 @@ public class Main {
 	  ArrayList<String> previousP = new ArrayList<String>();
       ArrayList<Double> result;
 	  ArrayList<Double> previousR = new ArrayList<Double>();
+/*	  
+	  for (int i=0;i<5;++i) {
+		  str = "++W++O++++oP++++w++++Q+p++++q+++++++++++";
+		  testString(qwop,str,1,i);
+	  }
+*/
+
       //runs count times
       for (int generation = 0; generation < count; ++generation) {
         //initialize population
@@ -63,6 +70,13 @@ public class Main {
           //find each chromosome and convert it to a playable string
           str = Qwopper.convertChromosomeToQWOP(population.get(index));
           //play the string
+		  System.out.println("the chromosome is:");
+		  System.out.println(population.get(index));
+		  System.out.println("the string is:");
+		  System.out.println(str);
+		  if(str.isEmpty() || str == null) {
+			  str = "++++++++++";
+		  }
           testString(qwop, str, 1, index);
         }
         //find the score of each chromosome in the population
@@ -89,6 +103,7 @@ public class Main {
         data.clear();
 
       }
+
 
     } catch (Throwable t) {
       LOG.log("Error", t);

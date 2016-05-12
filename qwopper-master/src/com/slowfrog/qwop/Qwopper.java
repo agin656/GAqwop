@@ -140,6 +140,9 @@ public class Qwopper {
    * </ul>
    */
   private void playString(String str) {
+	if (str.isEmpty() || str==null) {
+		str = "++++++++++";
+	}
     this.string = str;
     long lastTick = System.currentTimeMillis();
     for (int i = 0; i < str.length(); ++i) {
@@ -399,7 +402,6 @@ public class Qwopper {
   //this code is TERRIBLE!!! I know so DO NOT tell me how bad it is.
   public static String convertChromosomeToQWOP (String Chromosome) {
     String QWOP = "";
-	System.out.println(Chromosome);
 	int Qwait1 = Integer.parseInt(Chromosome.substring(0, 7), 2)*10;
     int Qpress = Integer.parseInt(Chromosome.substring(7, 15),2)*10;
     int Qwait2 = Integer.parseInt(Chromosome.substring(15,22),2)*10;
@@ -734,7 +736,7 @@ public class Qwopper {
     }
     
     long end = System.currentTimeMillis();
-    doWait(1000);
+    doWait(10000);
     float distance = Float.parseFloat(captureDistance());
     RunInfo info;
     if (stop) {
